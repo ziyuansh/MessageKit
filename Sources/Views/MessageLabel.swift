@@ -343,7 +343,7 @@ open class MessageLabel: UILabel {
             switch result.resultType {
             case .address:
                 var ranges = rangesForDetectors[.address] ?? []
-                let tuple: (NSRange, MessageTextCheckingType) = (result.range, .addressComponents(result.addressComponents))
+                let tuple: (NSRange, MessageTextCheckingType) = (result.range, .addressComponents(result.components))
                 ranges.append(tuple)
                 rangesForDetectors.updateValue(ranges, forKey: .address)
             case .date:
@@ -418,12 +418,8 @@ open class MessageLabel: UILabel {
         
         switch value {
         case let .addressComponents(addressComponents):
-            var transformedAddressComponents = [String: String]()
             guard let addressComponents = addressComponents else { return }
-            addressComponents.forEach { (key, value) in
-                transformedAddressComponents[key.rawValue] = value
-            }
-            handleAddress(transformedAddressComponents)
+            handleAddress(addressComponents)
         case let .phoneNumber(phoneNumber):
             guard let phoneNumber = phoneNumber else { return }
             handlePhoneNumber(phoneNumber)
@@ -433,18 +429,22 @@ open class MessageLabel: UILabel {
         case let .link(url):
             guard let url = url else { return }
             handleURL(url)
-        case let .transitInfoComponents(transitInformation):
-            var transformedTransitInformation = [String: String]()
-            guard let transitInformation = transitInformation else { return }
-            transitInformation.forEach { (key, value) in
-                transformedTransitInformation[key.rawValue] = value
-            }
-            handleTransitInformation(transformedTransitInformation)
+        case let .transitInfoComponents(transitComponents):
+            guard let transitComponents = transitComponents else { return }
+            handleTransitInformation(transitComponents)
         }
     }
     
-    private func handleAddress(_ addressComponents: [String: String]) {
-        delegate?.didSelectAddress(addressComponents)
+    private func handleAddress(_ addressComponents: [NSTextCheckingKey: String]) {
+        let transformedAddressComponents = addressComponents.compactMap {
+            return AddressComponent(key: $0.key, value: $0.value)
+        }
+        delegate?.didSelectAddress(transformedAddressComponents)
+
+        // Handle depricated method
+        var rawComponents = [String: String]()
+        addressComponents.forEach { rawComponents[$0.key.rawValue] = $0.value }
+        delegate?.didSelectAddress(rawComponents)
     }
     
     private func handleDate(_ date: Date) {
@@ -459,8 +459,16 @@ open class MessageLabel: UILabel {
         delegate?.didSelectPhoneNumber(phoneNumber)
     }
     
-    private func handleTransitInformation(_ components: [String: String]) {
-        delegate?.didSelectTransitInformation(components)
+    private func handleTransitInformation(_ transitComponents: [NSTextCheckingKey: String]) {
+        let transformedTransitComponents = transitComponents.compactMap {
+            return TransitComponent(key: $0.key, value: $0.value)
+        }
+        delegate?.didSelectTransitInformation(transformedTransitComponents)
+
+        // Handle depricated method
+        var rawComponents = [String: String]()
+        transitComponents.forEach { rawComponents[$0.key.rawValue] = $0.value }
+        delegate?.didSelectAddress(rawComponents)
     }
     
 }

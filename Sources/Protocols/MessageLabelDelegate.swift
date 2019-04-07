@@ -31,6 +31,9 @@ public protocol MessageLabelDelegate: AnyObject {
     ///
     /// - Parameters:
     ///   - addressComponents: The components of the selected address.
+    func didSelectAddress(_ addressComponents: [AddressComponent])
+
+    // Depricated, should use `didSelectAddress(_ addressComponents: [AddressComponent])`
     func didSelectAddress(_ addressComponents: [String: String])
 
     /// Triggered when a tap occurs on a detected date.
@@ -55,11 +58,16 @@ public protocol MessageLabelDelegate: AnyObject {
     ///
     /// - Parameters:
     ///   - transitInformation: The selected transit information.
+    func didSelectTransitInformation(_ transitInformation: [TransitComponent])
+
+    // Depricated, should use `didSelectAddress(_ addressComponents: [AddressComponent])`
     func didSelectTransitInformation(_ transitInformation: [String: String])
 
 }
 
 public extension MessageLabelDelegate {
+
+    func didSelectAddress(_ addressComponents: [AddressComponent]) {}
 
     func didSelectAddress(_ addressComponents: [String: String]) {}
 
@@ -68,7 +76,9 @@ public extension MessageLabelDelegate {
     func didSelectPhoneNumber(_ phoneNumber: String) {}
 
     func didSelectURL(_ url: URL) {}
-    
+
+    func didSelectTransitInformation(_ transitInformation: [TransitComponent]) {}
+
     func didSelectTransitInformation(_ transitInformation: [String: String]) {}
 
 }

@@ -204,8 +204,8 @@ extension ChatViewController: MessageCellDelegate {
 
 extension ChatViewController: MessageLabelDelegate {
     
-    func didSelectAddress(_ addressComponents: [String: String]) {
-        print("Address Selected: \(addressComponents)")
+    func didSelectAddress(_ addressComponents: [AddressComponent]) {
+        print("Address Selected: \(addressComponents.orderedString)")
     }
     
     func didSelectDate(_ date: Date) {
@@ -220,8 +220,8 @@ extension ChatViewController: MessageLabelDelegate {
         print("URL Selected: \(url)")
     }
     
-    func didSelectTransitInformation(_ transitInformation: [String: String]) {
-        print("TransitInformation Selected: \(transitInformation)")
+    func didSelectTransitInformation(_ transitInformation: [TransitComponent]) {
+        print("TransitInformation Selected: \(transitInformation.orderedString)")
     }
     
 }
