@@ -73,7 +73,7 @@ internal extension MessagesViewController {
             // ignore this notification.
             return
         }
-        guard self.presentedViewController == UIAlertController else {
+        if self.presentedViewController?.isKind(of: UIAlertController.self) ?? false {
             // This is important to skip notifications from child modal controllers in iOS >= 13.0
             return
         }
