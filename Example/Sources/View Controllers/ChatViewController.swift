@@ -189,6 +189,7 @@ extension ChatViewController: MessageCellDelegate {
     
     func didTapAvatar(in cell: MessageCollectionViewCell) {
         print("Avatar tapped")
+        self.view.endEditing(true)
     }
     
     func didTapMessage(in cell: MessageCollectionViewCell) {

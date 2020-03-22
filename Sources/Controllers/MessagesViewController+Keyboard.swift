@@ -59,6 +59,7 @@ internal extension MessagesViewController {
 
     @objc
     private func handleKeyboardDidChangeState(_ notification: Notification) {
+        return
         guard !isMessagesControllerBeingDismissed else { return }
 
         guard let keyboardStartFrameInScreenCoords = notification.userInfo?[UIResponder.keyboardFrameBeginUserInfoKey] as? CGRect else { return }

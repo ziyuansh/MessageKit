@@ -61,7 +61,7 @@ UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
     }
 
     open override var inputAccessoryView: UIView? {
-        return messageInputBar
+        return nil
     }
 
     open override var shouldAutorotate: Bool {
@@ -106,8 +106,30 @@ UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
         setupDelegates()
         addMenuControllerObservers()
         addObservers()
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
+    }
+    deinit {
+        removeKeyboardObservers()
+        removeMenuControllerObservers()
+        removeObservers()
+        clearMemoryCache()
+        NotificationCenter.default.removeObserver(self)
+    }
+    @objc func keyboardWillShow(notification: NSNotification) {
+        if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue {
+            if self.view.frame.origin.y == 0 {
+                self.view.frame.origin.y -= keyboardSize.height
+            }
+        }
     }
     
+
+    @objc func keyboardWillHide(notification: NSNotification) {
+           if self.view.frame.origin.y != 0 {
+               self.view.frame.origin.y = 0
+           }
+       }
     open override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         isMessagesControllerBeingDismissed = false
@@ -142,12 +164,6 @@ UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
 
     // MARK: - Initializers
 
-    deinit {
-        removeKeyboardObservers()
-        removeMenuControllerObservers()
-        removeObservers()
-        clearMemoryCache()
-    }
 
     // MARK: - Methods [Private]
 
@@ -166,22 +182,38 @@ UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
     }
 
     private func setupSubviews() {
+
+        view.addSubview(messageInputBar)
         view.addSubview(messagesCollectionView)
     }
 
     private func setupConstraints() {
         messagesCollectionView.translatesAutoresizingMaskIntoConstraints = false
-        
+
         let top = messagesCollectionView.topAnchor.constraint(equalTo: view.topAnchor, constant: topLayoutGuide.length)
-        let bottom = messagesCollectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         if #available(iOS 11.0, *) {
             let leading = messagesCollectionView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor)
             let trailing = messagesCollectionView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor)
-            NSLayoutConstraint.activate([top, bottom, trailing, leading])
+            NSLayoutConstraint.activate([top, trailing, leading])
         } else {
             let leading = messagesCollectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor)
             let trailing = messagesCollectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor)
-            NSLayoutConstraint.activate([top, bottom, trailing, leading])
+            NSLayoutConstraint.activate([top, trailing, leading])
+        }
+
+        messageInputBar.translatesAutoresizingMaskIntoConstraints = false
+
+        let messagesBottom = messagesCollectionView.bottomAnchor.constraint(equalTo: messageInputBar.topAnchor)
+        if #available(iOS 11.0, *) {
+            let mesaageInputBarBottom = messageInputBar.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
+            let messageInputBarLeading = messageInputBar.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor)
+            let messageInputBarTrailing = messageInputBar.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor)
+            NSLayoutConstraint.activate([messagesBottom, mesaageInputBarBottom, messageInputBarLeading, messageInputBarTrailing])
+        } else {
+            let mesaageInputBarBottom = messageInputBar.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+            let messageInputBarLeading = messageInputBar.leadingAnchor.constraint(equalTo: view.leadingAnchor)
+            let messageInputBarTrailing = messageInputBar.trailingAnchor.constraint(equalTo: view.trailingAnchor)
+            NSLayoutConstraint.activate([messagesBottom, mesaageInputBarBottom, messageInputBarLeading, messageInputBarTrailing])
         }
     }
 
